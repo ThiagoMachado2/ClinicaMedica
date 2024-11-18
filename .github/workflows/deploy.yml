@@ -19,6 +19,7 @@
             distribution: 'temurin'
             java-version: '21'
 
+<<<<<<< HEAD
         - name: Build with Maven
           run: mvn clean package
 
@@ -40,3 +41,26 @@
               cd PEI-Clinica-Medica
               mvn clean package
               nohup java -jar target/clinica-0.0.1-SNAPSHOT.jar &
+=======
+      - name: Build with Maven
+        run: mvn clean package
+
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          port: 22
+          script: |
+            cd /home/ubuntu/
+            if [ ! -d "PEI-Clinica-Medica" ]; then
+              git clone https://github.com/ThiagoMachado2/ClinicaMedica.git
+            else
+              cd PEI-Clinica-Medica
+              git pull origin main
+            fi
+            cd PEI-Clinica-Medica
+            mvn clean package
+            nohup java -jar target/clinica-0.0.1-SNAPSHOT.jar &
+>>>>>>> parent of 22e7b51 (deploy tentaiva ja não sei)
