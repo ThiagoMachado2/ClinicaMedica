@@ -1,35 +1,60 @@
-- name: Deploy to EC2
-  uses: appleboy/ssh-action@v0.1.0
-  with:
-    host: ${{ secrets.EC2_HOST }}
-    username: ${{ secrets.EC2_USER }}
-    key: ${{ secrets.EC2_KEY }}
-    port: 22
-    script: |
-      # Definindo o diretório de trabalho e repositório
-      REPO_DIR="/home/ubuntu/Clinica-Medica"
+name: Deploy Java Spring Boot Application to EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Build with Maven (clean install then clean package)
+        run: |
+          mvn clean install
+          mvn clean package
+
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v0.1.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          port: 22
+          timeout: 1800  # Aumentando o timeout para 30 minutos
+          script: |
+            # Definindo o diretório de trabalho e repositório
+            REPO_DIR="/home/ubuntu/Clinica-Medica"
+            
+            # Verificando se o diretório existe, e atualizando o repositório ou clonando-o
+            echo "Verificando se o repositório existe..."
+            if [ ! -d "$REPO_DIR" ]; then
+              echo "Clonando o repositório..."
+              git clone https://github.com/ThiagoMachado2/ClinicaMedica.git $REPO_DIR
+            else
+              echo "Atualizando o repositório..."
+              cd $REPO_DIR
+              git pull origin main || { echo "Erro ao atualizar o repositório"; exit 1; }
+            fi
+
+            # Navegando para o diretório do repositório
+            cd $REPO_DIR || { echo "Erro ao acessar o diretório"; exit 1; }
+
+            # Atualizando dependências e construindo o projeto
+            echo "Construindo o projeto..."
+            mvn clean install -DskipTests || { echo "Erro ao executar mvn clean install"; exit 1; }
+            mvn clean package -DskipTests || { echo "Erro ao executar mvn clean package"; exit 1; }
+
+            # Executando a aplicação em segundo plano
+            echo "Iniciando a aplicação..."
       
-      # Verificando se o diretório existe, e atualizando o repositório ou clonando-o
-      echo "Verificando se o repositório existe..."
-      if [ ! -d "$REPO_DIR" ]; then
-        echo "Clonando o repositório..."
-        git clone https://github.com/ThiagoMachado2/ClinicaMedica.git $REPO_DIR
-      else
-        echo "Atualizando o repositório..."
-        cd $REPO_DIR
-        git pull origin main || { echo "Erro ao atualizar o repositório"; exit 1; }
-      fi
-      
-      # Navegando para o diretório do repositório
-      cd $REPO_DIR || { echo "Erro ao acessar o diretório"; exit 1; }
-      
-      # Atualizando dependências e construindo o projeto
-      echo "Construindo o projeto..."
-      mvn clean install -DskipTests || { echo "Erro ao executar mvn clean install"; exit 1; }
-      mvn clean package -DskipTests || { echo "Erro ao executar mvn clean package"; exit 1; }
-      
-      # Executando a aplicação em segundo plano
-      echo "Iniciando a aplicação..."
-      nohup java -jar target/clinica-0.0.1-SNAPSHOT.jar & || { echo "Erro ao iniciar a aplicação"; exit 1; }
-      
-      echo "Deploy concluído com sucesso!"
