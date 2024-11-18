@@ -19,7 +19,7 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
 
-      - name: Build with Maven (clean install then clean package)
+      - name: Build with Maven
         run: |
           mvn clean install
           mvn clean package
@@ -31,11 +31,11 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           port: 22
-          timeout: 1800  # Aumentando o timeout para 30 minutos
+          timeout: 1800
           script: |
             # Definindo o diretório de trabalho e repositório
             REPO_DIR="/home/ubuntu/Clinica-Medica"
-            
+
             # Verificando se o diretório existe, e atualizando o repositório ou clonando-o
             echo "Verificando se o repositório existe..."
             if [ ! -d "$REPO_DIR" ]; then
@@ -55,6 +55,10 @@ jobs:
             mvn clean install -DskipTests || { echo "Erro ao executar mvn clean install"; exit 1; }
             mvn clean package -DskipTests || { echo "Erro ao executar mvn clean package"; exit 1; }
 
+            # Parando qualquer instância anterior da aplicação
+            echo "Parando qualquer instância anterior da aplicação..."
+            pkill -f 'java -jar' || echo "Nenhuma instância anterior encontrada."
+
             # Executando a aplicação em segundo plano
             echo "Iniciando a aplicação..."
-      
+            nohup java -jar target/clinica-0.0.1-SNAPSHOT.jar > app.log 2>&1 &
