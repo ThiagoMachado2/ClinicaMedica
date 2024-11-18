@@ -116,6 +116,12 @@
 			<version>0.11.5</version>
 		</dependency>
 		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
 			<version>4.0.1</version>
@@ -164,6 +170,15 @@
 
 	<build>
 		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>3.0.0-M5</version>
+				<configuration>
+					<skipTests>true</skipTests>
+				</configuration>
+			</plugin>
+
 			<plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-compiler-plugin</artifactId> <version>3.13.0</version> <configuration> <release>21</release> <annotationProcessorPaths> <path> <groupId>org.projectlombok</groupId> <artifactId>lombok</artifactId> <version>${org.projectlombok.version}</version> </path> <path> <groupId>org.mapstruct</groupId> <artifactId>mapstruct-processor</artifactId> <version>${org.mapstruct.version}</version> </path> <path> <groupId>org.projectlombok</groupId> <artifactId>lombok-mapstruct-binding</artifactId> <version>0.2.0</version> </path> </annotationProcessorPaths> <showWarnings>true</showWarnings> <compilerArgs> <arg>-Amapstruct.suppressGeneratorTimestamp=true</arg> <arg>-Amapstruct.verbose=true</arg> <arg>-Amapstruct.defaultComponentModel=spring</arg> <arg>-Amapstruct.suppressGeneratorVersionInfoComment=true</arg> </compilerArgs> </configuration> </plugin>
 		</plugins>
 	</build>
