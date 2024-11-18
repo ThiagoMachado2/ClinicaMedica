@@ -31,12 +31,12 @@ jobs:
           port: 22
           script: |
             cd /home/ubuntu/
-            if [ ! -d "PEI-Clinica-Medica" ]; then
+            if [ ! -d "Clinica-Medica" ]; then
               git clone https://github.com/ThiagoMachado2/ClinicaMedica.git
             else
-              cd PEI-Clinica-Medica
+              cd Clinica-Medica
               git pull origin main
             fi
-            cd PEI-Clinica-Medica
+            cd Clinica-Medica
             mvn clean package
             nohup java -jar target/clinica-0.0.1-SNAPSHOT.jar &

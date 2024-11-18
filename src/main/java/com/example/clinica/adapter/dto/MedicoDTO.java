@@ -13,7 +13,4 @@ public class MedicoDTO {
     private String telefone;
     private String email;
     private LocalDate dataContratacao;
-    private String especialidade; // Especialidade do médico
-    private String endereco;
-
 }
