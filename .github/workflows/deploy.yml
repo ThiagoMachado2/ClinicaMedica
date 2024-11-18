@@ -31,7 +31,7 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           port: 22
-          timeout: 1800
+          timeout: 1800s  # Adicionando a unidade de segundos
           script: |
             # Definindo o diretório de trabalho e repositório
             REPO_DIR="/home/ubuntu/Clinica-Medica"
